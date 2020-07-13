@@ -17,7 +17,9 @@ assembly("main") {
     if (show_psu_assembly)
         psu_assembly();
     if (show_drive_assembly)
-        drive_assembly();
+        translate([motherboard_width(motherboard_type) - drive_cage_width(), drive_cage_length(), 0])
+            rotate(-90)
+                drive_assembly();
 }
 
 if($preview)
