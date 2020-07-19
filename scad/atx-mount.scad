@@ -13,12 +13,15 @@ show_drive_assembly = true;
 module main_assembly()
 assembly("main") {
     if (show_mother_board)
-        motherboard(motherboard_type);
+        translate([0, 0, psu_mount_height() + 10])
+            motherboard(motherboard_type);
     if (show_psu_assembly)
-        psu_assembly();
-    if (show_drive_assembly)
-        translate([motherboard_width(motherboard_type) - drive_cage_width(), drive_cage_length(), 0])
+        translate([0, motherboard_length(motherboard_type), 0])
             rotate(-90)
+                psu_assembly();
+    if (show_drive_assembly)
+        translate([drive_cage_length(), drive_cage_width(), 0])
+            rotate(180)
                 drive_assembly();
 }
 
