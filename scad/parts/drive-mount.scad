@@ -1,4 +1,4 @@
-include <../NopSCADlib/lib.scad>
+include <../NopSCADlib/core.scad>
 include <../vitamins/drives.scad>
 include <../vitamins/motherboards.scad>
 
@@ -16,13 +16,17 @@ bottom_thickness = 5;
 // Thickness at the side of the frame
 side_thickness = 10;                // TODO: Evaluate for screw lengths
 // Clearance arond the drive in the slot
-drive_clearance = 1;
+drive_clearance = 3;
 // Radius of the slot used to grab the drives and pull them out of the cage
 grab_slot_radius = 7;
 // Depth of screw holes
 screw_depth = 10;                   // TODO: For heat set inserts
 // Excess length at the back of the drive to overlap with the motherboard screw holes
 excess_length = 15;
+// Panel mount length
+panel_mount_length = 72;
+// Panel mount hole radius
+panel_mount_hole_radius = 16;
 
 function drive_cage_height() = (drive_height(hdd) * number_of_hdds)
                     + (drive_stack_spacing * (number_of_hdds - 1))
@@ -36,7 +40,10 @@ module drive_mount_stl() {
 
     difference() {
         // Base material
-        cube([drive_cage_length(), drive_cage_width(), drive_cage_height()]);
+        union() {
+            cube([drive_cage_length(), drive_cage_width(), drive_cage_height()]);
+            panel_mount_button();
+        }
         // Material to be removed
         union() {
             drive_hollow();
@@ -48,12 +55,13 @@ module drive_mount_stl() {
 }
 
 module drive_hollow() {
-    union()
+    union() {
+        length = drive_length(hdd) + side_thickness * 2 + excess_length;
         for (i = [0:number_of_hdds-1]) {
             translate([0, side_thickness, bottom_thickness + ((drive_height(hdd) + drive_stack_spacing) * i)])
-                scale([1, 1.01, 1.01])
-                    cube([drive_length(hdd) + side_thickness * 2 + excess_length, drive_width(hdd), drive_height(hdd)]);
+                cube([length, drive_width(hdd) + drive_clearance, drive_height(hdd) + drive_clearance]);
         }
+    }
 }
 
 module side_mounting_holes_tracks() {
@@ -104,8 +112,20 @@ module motherboard_screw_holes() {
 
 module draw_hdds() {
     for (i = [0:number_of_hdds-1]) {
-        translate([side_thickness, side_thickness, bottom_thickness + ((drive_height(hdd) + drive_stack_spacing) * i)])
+        translate([side_thickness, side_thickness + drive_clearance / 2, bottom_thickness + ((drive_height(hdd) + drive_stack_spacing) * i)])
             drive(hdd);
+    }
+}
+
+// In term of the simple design I'm going for, the drive mount is the best place to put this extra material for
+// mounting the panel button
+module panel_mount_button() {
+    difference() {
+        translate([-panel_mount_length, drive_cage_width() - side_thickness, 0])
+            cube([panel_mount_length, side_thickness, drive_cage_height()]);
+        translate([-panel_mount_length / 2, drive_cage_width() - side_thickness / 2, drive_cage_height() / 2])
+            rotate([90, 0, 0])
+                cylinder(r=panel_mount_hole_radius, h=side_thickness, center=true);
     }
 }
 
