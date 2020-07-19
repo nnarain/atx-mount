@@ -1,9 +1,7 @@
 include <../NopSCADlib/lib.scad>
+include <../NopSCADlib/vitamins/psus.scad>
 include <../vitamins/psu-antec.scad>
 include <../vitamins/motherboards.scad>
-
-use <../NopSCADlib/psu.scad>
-use <../NopSCADlib/psus.scad>
 
 psu_type = EA550G_PRO;
 

@@ -1,1 +1,11 @@
 build/*
+bom/*
+stls/*
+deps/*
+dxfs/*
+assemblies/*
+
+*.html
+
+*.log
+*.echo
